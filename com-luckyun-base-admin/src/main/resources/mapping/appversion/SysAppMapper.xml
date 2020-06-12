@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.appversion.mapper.SysAppMapper">
+
+	<select id="findAll" resultType="com.luckyun.model.appversion.SysApp"
+		parameterType="com.luckyun.base.appversion.param.SysAppParam">
+		select appv.indocno,app.sname,appv.iversion,appv.sversion_no,appv.surl FROM sys_app app left join sys_app_version
+			appv on app.indocno = appv.ilinkno
+				order by appv.dregt desc
+	</select>
+	
+	<select id="findLastVersion" resultType="com.luckyun.model.appversion.SysApp">
+		select appv.indocno,app.sname,appv.iversion,appv.sversion_no,appv.surl, FROM sys_app app left join sys_app_version
+			appv on app.indocno = appv.ilinkno
+			where appv.iversion &gt; #{iversion} and app.saliasname=#{saliasname} and app.stype = #{stype}
+				order by appv.iversion desc
+	</select>
+</mapper>

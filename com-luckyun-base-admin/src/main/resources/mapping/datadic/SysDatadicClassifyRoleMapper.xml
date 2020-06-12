@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.datadic.mapper.SysDatadicClassifyRoleMapper">
+
+	<!-- 根据字典分类获取角色 -->
+	<select id="findRoleByIclassifyId" parameterType="long" resultType="com.luckyun.model.datadic.SysDatadicClassifyRole">
+		select
+			sr.indocno as indocno, sr.indocno as iroleid, sr.sname, clarole.iclassifyid
+		from 
+			sys_datadic_classify classify 
+		left join 
+			sys_datadic_classify_role clarole 
+		on 
+			classify.indocno = clarole.iclassifyid 
+		left join 
+			sys_role sr 
+		on 
+			sr.indocno = clarole.iroleid 
+		where 
+			classify.indocno = #{iclassifyid}
+	</select>
+
+	<!-- 根据字典分类获取关系表信息 -->
+	<select id="findByIclassifyId" parameterType="long" resultType="com.luckyun.model.datadic.SysDatadicClassifyRole">
+		select
+			clarole.indocno, sr.indocno as iroleid, sr.sname, clarole.iclassifyid
+		from 
+			sys_datadic_classify classify 
+		left join 
+			sys_datadic_classify_role clarole 
+		on 
+			classify.indocno = clarole.iclassifyid 
+		left join 
+			sys_role sr 
+		on 
+			sr.indocno = clarole.iroleid 
+		where 
+			classify.indocno = #{iclassifyid}
+	</select>
+	
+	<!-- 根据字典分类删除关联表数据 -->
+	<delete id="deleteByIclassifyId" parameterType="long">
+		delete from 
+			sys_datadic_classify_role 
+		where 
+			iclassifyid = #{iclassifyid}
+	</delete>
+</mapper>

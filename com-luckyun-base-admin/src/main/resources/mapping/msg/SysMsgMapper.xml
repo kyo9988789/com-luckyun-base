@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.msg.mapper.SysMsgMapper">
+	<select id="findAllMyMsg" 
+		resultType="com.luckyun.model.msg.SysMsg">
+		select a.indocno,a.stitle,a.smsg,a.itype,a.imsg_type,a.dstart,a.dend,a.dsend
+			,a.ifrombillid,a.sfrombillnm,a.sfrombillurl,a.istate,a.sregid,a.sregnm,a.dregt,a.idel,b.iread from sys_msg a 
+			left join sys_msg_user b on a.indocno=b.ilinkno
+	 	 where a.idel = 0
+           	and b.idel=0
+			and b.iuserid=#{iuserid} 
+			and a.dsend&lt;=#{nowdate} 
+			and a.dend&gt;=#{nowdate}
+    	<if test="condition.iread !=null and condition.iread == 1">
+			<!-- and (b.iread=#{condition.iread}) -->
+			and b.iread &gt;= 1
+		</if>
+		<if test="condition.iread !=null and condition.iread == 0">
+			<!-- and (b.iread=#{condition.iread}) -->
+			and b.iread &lt;= 0
+		</if>
+		<if test="condition.stitle !=null and '' != condition.stitle">
+			<bind name="cstitle" value="'%' + condition.stitle + '%'"/>
+			and (a.stitle like #{cstitle})
+		</if>
+		<if test="condition.istate !=null">
+			and a.istate = #{condition.istate}
+		</if>
+		<if test="condition.itype !=null">
+			and a.itype = #{condition.itype}
+		</if>	
+			order by a.dregt desc	
+	</select>
+	<select id="findAllMySendMsg" 
+		resultType="com.luckyun.model.msg.SysMsg">
+		select a.indocno,a.stitle,a.smsg,a.itype,a.imsg_type,a.dstart,a.dend,a.dsend
+			,a.ifrombillid,a.sfrombillnm,a.sfrombillurl,a.istate,a.sregid,a.sregnm,a.dregt,a.idel
+			,(select count(0) from sys_msg_user b where b.ilinkno=a.indocno) as userCount from sys_msg a
+	 	where a.idel = 0 and a.sregid=#{iuserid}
+		<if test="condition.stitle !=null and '' != condition.stitle">
+			<bind name="cstitle" value="'%' + condition.stitle + '%'"/>
+			and (a.stitle like #{cstitle})
+		</if>
+		<if test="condition.istate !=null">
+			and a.istate = #{condition.istate}
+		</if>
+		<if test="condition.itype !=null">
+			and a.itype = #{condition.itype}
+		</if>
+			order by a.dregt desc	
+	</select>
+	<select id="findAllMyMsgGroup" 
+		resultType="com.luckyun.model.msg.SysMsg">
+		(select max(a.indocno) as indocno,a.stitle,a.smsg,a.itype,a.imsg_type,a.sfrombillnm,a.sfrombillurl,a.istate,a.sregnm,
+			count(a.sfrombillurl) as countgroup,max(a.dregt) as sendtime from sys_msg a 
+			left join sys_msg_user b on a.indocno=b.ilinkno
+	 	 where a.idel = 0
+           	and b.idel=0
+           	and a.sfrombillurl is not null 
+			and b.iuserid=#{iuserid} 
+			and a.dsend&lt;=#{nowdate} 
+			and a.dend&gt;=#{nowdate}
+    	<if test="condition.iread !=null">
+			and (b.iread=#{condition.iread})
+		</if>
+		<if test="condition.stitle !=null and '' != condition.stitle">
+			<bind name="cstitle" value="'%' + condition.stitle + '%'"/>
+			and (a.stitle like #{cstitle})
+		</if>
+		<if test="condition.istate !=null">
+			and a.istate = #{condition.istate}
+		</if>
+		<if test="condition.itype !=null">
+			and a.itype = #{condition.itype}
+		</if>	
+			group by a.sfrombillurl,a.stitle,a.smsg,a.itype,a.imsg_type,a.sfrombillnm,a.istate,a.sregnm)
+			union all
+		(select c.indocno,c.stitle,c.smsg,c.itype,c.imsg_type,c.sfrombillnm,c.sfrombillurl,c.istate,c.sregnm,
+			1 as countgroup,c.dregt as sendtime from sys_msg c 
+			left join sys_msg_user d on c.indocno=d.ilinkno
+	 	 where c.idel = 0
+           	and d.idel=0
+           	and c.sfrombillurl is null 
+			and d.iuserid=#{iuserid} 
+			and c.dsend&lt;=#{nowdate} 
+			and c.dend&gt;=#{nowdate}
+    	<if test="condition.iread !=null">
+			and (d.iread=#{condition.iread})
+		</if>
+		<if test="condition.stitle !=null and '' != condition.stitle">
+			<bind name="cstitle" value="'%' + condition.stitle + '%'"/>
+			and (c.stitle like #{cstitle})
+		</if>
+		<if test="condition.istate !=null">
+			and c.istate = #{condition.istate}
+		</if>
+		<if test="condition.itype !=null">
+			and c.itype = #{condition.itype}
+		</if>	
+		)
+		order by sendtime desc
+	</select>
+	<select id="findOne" 
+		resultType="com.luckyun.model.msg.SysMsg">
+		select distinct(a.indocno), a.*,c.scontent from sys_msg a 
+			left join sys_msg_user b on a.indocno=b.ilinkno
+			left join sys_msg_detail c on a.indocno=c.ilinkno
+	 	where a.idel = 0
+	 		and (b.iuserid=#{iuserid} or a.sregid=#{iuserid}) 
+	 		and a.dsend&lt;#{nowdate} 
+	 		and a.dend&gt;#{nowdate}
+	 		and a.indocno=#{indocno}
+	</select>
+	<select id="findOneBySendUser" 
+		resultType="com.luckyun.model.msg.SysMsg">
+		select a.* from sys_msg a 
+	 	where a.indocno=#{indocno} and a.sregid=#{iuserid}
+	</select>
+	<!-- 根据消息编号阅读所有的消息 -->
+	<update id="updateByIlinknoRead" parameterType="Long">
+		update sys_msg_user set iread = 1 where iread = 0 and ilinkno = #{ilinkno} 
+	</update>
+</mapper>

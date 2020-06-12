@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.user.mapper.SysUserMapper">
+	<resultMap type="com.luckyun.model.user.SysAccount" id="sysUserResultMap">
+		<id property="indocno" column="indocno" />
+		<result property="sname" column="sname" />
+		<result property="sloginid" column="sloginid"/>
+		<result property="dovertime" column="dovertime"/>
+		<result column="sphone" property="sphone"/>
+		<result column="sworkno" property="sworkno"/>
+		<association property="sysUserInfo" javaType="com.luckyun.model.user.SysUser">
+			<id column="infoindocno" property="indocno"/>
+			<result column="iuserid" property="iuserid"/>
+			<result column="dbirthday" property="dbirthday"/>
+			<result column="isex" property="isex"/>
+			<result column="imarry" property="imarry"/>
+			<result column="sidno" property="sidno"/>
+			<result column="semail" property="semail"/>
+			<result column="stelephone" property="stelephone"/>
+			<result column="sphoto" property="sphoto"/>
+			<result column="sphoto1" property="sphoto1"/>
+			<result column="sdescribe" property="sdescribe"/>
+			<result column="ideptid" property="ideptid"/>
+			<result column="sdeptnm" property="sdeptnm"/>
+			<result column="spostlevel" property="spostlevel"/>
+			<result column="snickname" property="snickname" />
+		</association>
+	</resultMap>
+	<select id="findAll" 
+		resultType="com.luckyun.model.user.SysAccount" parameterType="com.luckyun.base.user.param.SysUserParam">
+		select distinct suser.indocno,suser.sloginid,suser.sname,suser.sphone,suser.spinyinsingle,suser.spinyinfull
+				,suser.sworkno,suser.istate,suser.dovertime,suser.dregt,suser.itype
+			,uinfo.semail,dept.sname as deptname,dept.sidcc as sdeptsidcc from sys_account suser
+			left join sys_user uinfo on suser.indocno = uinfo.iuserid 
+			left join sys_user_role urole on suser.indocno = urole.iuserid
+			left join sys_role srole on urole.iroleid = srole.indocno
+			left join sys_dept dept on uinfo.ideptid = dept.indocno
+			left join sys_user_post upost on upost.iuserid = suser.indocno
+			left join sys_user_major sumajor on sumajor.iuserid=suser.indocno
+			left join sys_major smajor on sumajor.imajorid = smajor.indocno
+			where suser.idel = 0
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and (suser.sname like #{csname} or suser.sloginid like #{csname} or suser.sphone like #{csname})
+		</if>
+		<if test="condition.iroleid != null">
+			and urole.iroleid = #{condition.iroleid} 
+		</if>
+		<if test="condition.ideptid != null">
+			and uinfo.ideptid = #{condition.ideptid}
+		</if>
+		<if test="condition.istate != null">
+			and suser.istate = #{condition.istate}
+		</if>
+		<if test="condition.ideptidsidcc != null">
+			<bind name="cdeptsidcc" value="'%/' + condition.ideptidsidcc + '/%'"/>
+			and dept.sidcc like #{cdeptsidcc}
+		</if>
+		<if test="condition.iroletypeid != null">
+			and urole.iroleid in (select role.indocno from sys_role_type rtype 
+				inner join sys_role role on rtype.indocno=role.itypeid where rtype.indocno =#{condition.iroletypeid}  )
+		</if>
+		<if test="condition.roleids !=null and condition.roleid.size() >= 1">
+			and urole.iroleid in 
+			<foreach item="item" collection="condition.roleids" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="condition.deptids != null and condition.deptids.size() >= 1">
+			and uinfo.ideptid in 
+			<foreach item="item" collection="condition.deptids" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="condition.sysRolenmList != null and condition.sysRolenmList.size() >= 1">
+			and srole.sname in  
+			<foreach item="item" collection="condition.sysRolenmList" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="condition.sysMajornmList != null and condition.sysMajornmList.size() >= 1">
+			and smajor.sname in  
+			<foreach item="item" collection="condition.sysMajornmList" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="condition.sysDeptnmList != null and condition.sysDeptnmList.size() >= 1">
+			and dept.sname in  
+			<foreach item="item" collection="condition.sysDeptnmList" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="condition.ipostid != null">
+			and upost.ipostid = #{condition.ipostid}
+		</if>
+		<if test="condition.rolenms != null and condition.rolenms != '' ">
+			and srole.sname = #{condition.rolenms}
+		</if>
+		<if test="condition.majornms !=null and condition.majornms != '' ">
+			and smajor.sname = #{condition.majornms}
+		</if>
+		<if test="condition.deptname !=null and condition.deptname != '' ">
+			and dept.sname = #{condition.deptname}
+		</if>
+		<if test="condition.sworknolike !=null and condition.sworknolike != '' ">
+			<bind name="csworkno" value="'%' + condition.sworknolike + '%'"/>
+			and suser.sworkno like #{csworkno}
+		</if>
+		<if test="condition.sworkno !=null and condition.sworkno != '' ">
+			and suser.sworkno = #{condition.sworkno}
+		</if>
+		<if test="condition.spinyinsingle != null and condition.spinyinsingle != '' ">
+			<bind name="cspinyinsingle" value="condition.spinyinsingle + '%'"/>
+			and suser.spinyinsingle like #{cspinyinsingle}
+		</if>
+	</select>
+	<select id="findOne" resultMap="sysUserResultMap" parameterType="Long">
+		select distinct suser.indocno,suser.sname,suser.sloginid,
+			uinfo.indocno as infoindocno,uinfo.iuserid,uinfo.dbirthday,uinfo.isex,uinfo.imarry,uinfo.sidno
+			,uinfo.semail,suser.sphone,uinfo.stelephone,uinfo.sphoto,uinfo.sphoto1,uinfo.sphoto2,uinfo.sdescribe
+			,uinfo.ideptid, dept.sname as sdeptnm,suser.dovertime,suser.sworkno,uinfo.spostlevel,uinfo.snickname
+			from sys_account suser left join sys_user uinfo on suser.indocno = uinfo.iuserid
+			left join sys_dept dept on uinfo.ideptid = dept.indocno
+			where suser.idel = 0 and suser.indocno = #{indocno}
+	</select>
+	
+	<select id="findInfoByIuserid" resultType="com.luckyun.model.user.SysUser" parameterType="Long">
+		select suser.* from sys_user suser inner join sys_account account on suser.iuserid = account.indocno
+		where suser.iuserid = #{uid}
+	</select>
+	
+	<select id="findBySloginid" resultType="com.luckyun.model.user.SysAccount" parameterType="String">
+		select * from sys_account suser where suser.sloginid = #{sloginid}
+	</select>
+
+	<select id="findUserMajor"
+			resultType="com.luckyun.model.user.SysAccount" parameterType="com.luckyun.base.user.param.SysUserParam">
+		select distinct suser.*,uinfo.semail,dept.sname as deptname,major.indocno as userMajorId from sys_account suser
+		left join sys_user uinfo on suser.indocno = uinfo.iuserid
+		left join sys_dept dept on uinfo.ideptid = dept.indocno
+		left join sys_user_major major on major.iuserid = suser.indocno
+		where suser.idel = 0
+		<if test="condition.majorid != null">
+			and major.imajorid = #{condition.majorid}
+		</if>
+	</select>
+	
+	<select id="findUserForBpm" resultType="com.luckyun.model.user.SysAccount" parameterType="String">
+		select a.sloginid,a.sname,d.semail,c.sname as deptname from sys_account a
+				left join sys_user d on a.indocno = d.iuserid
+				left join sys_dept c on c.indocno = d.ideptid
+				where a.idel = 0
+		<if test="sloginid != null and sloginid != 'xyz' ">
+			and a.sloginid = #{sloginid}
+		</if>
+	</select>
+</mapper>

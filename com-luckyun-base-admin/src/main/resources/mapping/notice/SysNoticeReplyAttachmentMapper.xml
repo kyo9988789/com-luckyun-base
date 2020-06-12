@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.notice.mapper.SysNoticeReplyAttachmentMapper">
+	
+	<select id="findByInoticeid" resultType="com.luckyun.model.notice.SysNoticeReplyAttachment" parameterType="long">
+		select a.* from sys_notice_reply_attachment a 
+		where a.ilinkno in 
+		(select b.indocno from sys_notice_reply b where b.ilinkno=#{inoticeid})
+		order by a.dregt asc
+	</select>
+</mapper>

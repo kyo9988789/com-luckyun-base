@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.user.mapper.SysUserCompanyMapper">
+
+	<select id="findDeptsByUid" resultType="com.luckyun.model.user.SysUserCompany" parameterType="Long">
+		select ucompany.indocno,ucompany.iuserid,ucompany.ideptid,dept.icompanyid
+		 from sys_user_company ucompany 
+		 left join sys_dept dept on ucompany.ideptid = dept.indocno
+		 where ucompany.iuserid = #{uid}
+	</select>
+	
+	<select id="findDeptObjByUid" resultType="com.luckyun.model.dept.SysDept" parameterType="Long">
+		select * from sys_dept deptobj 
+		inner join sys_user_company depts on deptobj.indocno  = depts.ideptid
+		where depts.iuserid = #{uid} and deptobj.idel = 0
+	</select>
+</mapper>

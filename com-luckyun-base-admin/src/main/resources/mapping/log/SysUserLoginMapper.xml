@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.logger.mapper.SysUserLoginMapper">
+	<select id="findByCondition" 
+		resultType="com.luckyun.model.log.SysUserLogin">
+		select a.indocno,a.iuserid,a.susernm,a.ilogintype,a.sloginid,a.sloginip,a.sloginmac,a.dlogintime,a.sloginmsg from sys_user_login a
+		<where> 
+	    <if test="condition.susernm !=null and '' != condition.susernm">
+	    <bind name="csusernm" value="'%' + condition.susernm + '%'"/>
+			(a.susernm like #{csusernm} or a.sloginid like #{csusernm})
+	    </if> 
+	  </where>
+	  	order by a.dlogintime desc																					
+	</select>
+</mapper>

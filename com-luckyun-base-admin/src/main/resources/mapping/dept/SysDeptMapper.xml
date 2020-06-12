@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.dept.mapper.SysDeptMapper">
+	<select id="findAll" 
+		resultType="com.luckyun.model.dept.SysDept" parameterType="com.luckyun.base.dept.param.SysDeptParam">
+		select a.indocno,a.icompanyid,a.iparentid,a.isort,a.scode,a.sname,a.spinyinsimple,a.spinyinfull,a.itype,a.sdescribe
+		,a.ilevel,a.sidcc,a.sregid,a.dregt,(select sname from sys_company where indocno=a.icompanyid) as companyname,
+		(select count(*) from sys_dept b where b.iparentid = a.indocno) as hasChindren,
+		(select count(*) from sys_user d left join sys_account e on d.iuserid=e.indocno where e.idel=0 and d.ideptid in (select indocno from sys_dept c where c.idel=0 and c.sidcc like CONCAT(CONCAT('%/',a.indocno),'/%'))) as humanCount
+			from sys_dept a where a.idel = 0
+		<if test="condition.icompanyid !=null and '' != condition.icompanyid">
+			and a.icompanyid = #{condition.icompanyid}
+		</if>
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and (a.sname like #{csname})
+		</if>
+		order by a.isort desc
+	</select>
+	<select id="findFeignAll" resultType="com.luckyun.model.dept.SysDept" parameterType="com.luckyun.base.dept.param.SysDeptParam">
+		select a.* from sys_dept a where idel = 0
+		<if test="condition.jurisDepts != null and condition.jurisDepts.size() >= 1">
+			and
+			<foreach item="item" collection="condition.jurisDepts" open="(" separator=" or " close=")">
+				<bind name="tm" value="'%/' + item.indocno + '/%'"/>
+				a.sidcc like #{tm}
+			</foreach>
+		</if>
+		<if test="condition.sidcc != null and '' != condition.sidcc">
+			<bind name="sidcc" value="'%/' + condition.sidcc + '/%'"/>
+			and a.sidcc like #{sidcc}
+		</if>
+		<if test="condition.iparentid != null and '' != condition.iparentid">
+			and a.iparentid = #{condition.iparentid}
+		</if>
+		<if test="condition.icompanyid != null and '' != condition.icompanyid">
+			and a.icompanyid = #{condition.icompanyid}
+		</if>
+		<if test="(condition.ilevelstart != null and '' != condition.ilevelstart) and (condition.ilevelend != null and '' != condition.ilevelend)">
+			and a.ilevel &gt;= #{condition.ilevelstart} and a.ilevel &lt;= #{condition.ilevelend}
+		</if>
+		<if test="(condition.ilevelstart != null and '' != condition.ilevelstart) and (condition.ilevelend == null or '' == condition.ilevelend)">
+			and a.ilevel &gt;= #{condition.ilevelstart}
+		</if>
+		<if test="(condition.ilevelend != null and '' != condition.ilevelend) and (condition.ilevelstart == null or '' == condition.ilevelstart)">
+			and a.ilevel &lt;= #{condition.ilevelend}
+		</if>
+		<if test="condition.indocno != null and '' != condition.indocno">
+			and a.indocno = #{condition.indocno}
+		</if>
+		<if test="condition.scode != null and '' != condition.scode">
+			and a.scode = #{condition.scode}
+		</if>
+	</select>
+	<select id="findOne" resultType="com.luckyun.model.dept.SysDept" parameterType="long">
+		select a.*,(select count(*) from sys_dept b where b.iparentid = #{indocno}) as hasChindren from sys_dept a 
+			where a.idel = 0 and a.indocno = #{indocno}
+	</select>
+	<select id="findDeptsByIparentid" resultType="com.luckyun.model.dept.SysDept">
+    	select distinct a.* from sys_dept a where 
+    	<bind name="cparentid" value="'%/' + iparentid + '/%'"/>
+    	a.sidcc like #{cparentid}
+  	</select>
+  	
+  	<select id="findDeptsByIparentidEquips" resultType="com.luckyun.model.dept.SysDept">
+    	select a.* from sys_dept a where a.iparentid = #{iparentid} and a.idel = 0
+  	</select>
+  	
+  	<select id="findDeptJuris" resultType="com.luckyun.model.dept.SysDept" parameterType="long">
+  		select distinct sdept.* from sys_dept sdept
+				inner join sys_user_company company on sdept.indocno = company.ideptid
+			where company.iuserid = #{iuserid} and sdept.idel = 0
+  	</select>
+  	
+  	<select id="findDeptByOtherCondition" resultType="com.luckyun.model.dept.SysDept" parameterType="com.luckyun.base.dept.param.SysDeptParam">
+  		select a.* from sys_dept a where idel = 0
+  		<if test="condition.indocnos != null and condition.indocnos.size() >= 1">
+	  		and a.indocno in 
+			<foreach item="item" collection="condition.indocnos" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+  	</select>
+</mapper>

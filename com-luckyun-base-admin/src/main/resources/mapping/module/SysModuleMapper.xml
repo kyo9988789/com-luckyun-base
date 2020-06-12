@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.module.mapper.SysModuleMapper">
+	<select id="findAll" 
+		resultType="com.luckyun.model.module.SysModule" parameterType="com.luckyun.base.module.param.SysModuleParam">
+		select a.*,(select count(*) from sys_module b where b.iparentid = a.indocno) as hasChindren,
+		(select count(*) from sys_module_operate c where c.imoduleid = a.indocno) as operateCount from sys_module a where idel = 0
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and (a.sname like #{csname})
+		</if>
+		<if test="condition.iparentid !=null and condition.iparentid>0">
+			<bind name="ciparentid" value="'%/' + condition.iparentid + '/%'"/>
+			and (a.sidcc like #{ciparentid})
+		</if>
+		<if test="condition.iparentid ==null or condition.iparentid==0">
+			and a.iparentid=0
+		</if>
+		<if test="condition.moduleIds !=null and condition.moduleIds.size() >= 1">
+			and a.indocno in 
+			<foreach item="item" collection="condition.moduleIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		order by a.isort desc
+	</select>
+	
+	<select id="findAllNoOtherCondition" resultType="com.luckyun.model.module.SysModule" 
+		parameterType="com.luckyun.base.module.param.SysModuleParam">
+		select a.* from sys_module a where idel = 0
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and (a.sname like #{csname})
+		</if>
+		<if test="condition.iparentid !=null and condition.iparentid>0">
+			<bind name="ciparentid" value="'%/' + condition.iparentid + '/%'"/>
+			and (a.sidcc like #{ciparentid})
+		</if>
+		<if test="condition.spath !=null and condition.spath != '' ">
+			and a.spath = #{condition.spath}
+		</if>
+		<if test="condition.spathalias !=null and condition.spathalias != '' ">
+			and a.spathalias = #{condition.spathalias}
+		</if>
+		<if test="condition.moduleIds !=null and condition.moduleIds.size() >= 1">
+			and a.indocno in 
+			<foreach item="item" collection="condition.moduleIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="condition.imenu != null">
+			and a.imenu = #{condition.imenu}
+		</if>
+		order by a.isort desc
+	</select>
+	
+	<select id="findOne" resultType="com.luckyun.model.module.SysModule" parameterType="long">
+		select a.*,(select count(*) from sys_module b where b.iparentid = #{indocno}) as hasChindren from sys_module a 
+			where a.idel = 0 and a.indocno = #{indocno}
+	</select>
+	<select id="findAllOperates" resultType="com.luckyun.model.operate.SysOperate" parameterType="long">
+		select b.indocno,b.sname,b.igroupid,b.spath,b.sdescribe,b.isort from sys_module_operate a left join sys_operate b on a.ioperateid=b.indocno 
+			where a.imoduleid = #{indocno} and a.ioperateid>0 and b.idel=0
+			order by a.isort asc
+	</select>
+	<select id="findCustomOperates" resultType="com.luckyun.model.module.SysModuleOperate" parameterType="long">
+		select a.indocno,a.sname,a.imoduleid,a.spath,a.sdescribe from sys_module_operate a left join sys_operate b on a.ioperateid=b.indocno 
+			where a.imoduleid = #{indocno} and a.ioperateid is null
+			order by a.isort asc
+	</select>
+	<select id="findModuleOperates" resultType="com.luckyun.model.module.SysModuleOperate" parameterType="long">
+		select a.* from sys_module_operate a  
+			where a.imoduleid = #{indocno} and a.ioperateid>0
+	</select>
+	<select id="findByIparentid" resultType="com.luckyun.model.module.SysModule" parameterType="long">
+		select a.* from sys_module a  
+			where a.iparentid = #{iparentid}
+	</select>
+
+	<select id="findByPathalias" resultType="com.luckyun.model.module.SysModule" parameterType="String">
+		select * from sys_module where instr(#{spathalias},spathalias)>0 and spathalias!='' order by spath desc
+	</select>
+	<!-- 加载用户菜单模块 -->
+	<select id="findByLoginUser" resultType="com.luckyun.model.module.SysModule" parameterType="com.luckyun.base.module.param.SysModuleParam">
+		SELECT module.* FROM sys_module module
+			WHERE module.istate = 1
+			AND EXISTS (
+				SELECT 1 FROM sys_module_operate mp
+				LEFT JOIN sys_role_operate ro ON mp.indocno = ro.ioperateid
+				LEFT JOIN sys_user_role ur ON ro.iroleid = ur.iroleid
+				WHERE ur.iuserid = #{userid} AND module.indocno = mp.imoduleid
+			)
+		AND module.idel = 0 AND module.imenu = 1 ORDER BY module.isort desc
+	</select>
+	<!-- 加载用户包括菜单在内的所有的模块列表 -->
+	<select id="findAllByLoginUser" resultType="com.luckyun.model.module.SysModule" >
+		SELECT module.* FROM sys_module module
+			WHERE module.istate = 1
+			AND EXISTS (
+				SELECT 1 FROM sys_module_operate mp
+				LEFT JOIN sys_role_operate ro ON mp.indocno = ro.ioperateid
+				LEFT JOIN sys_user_role ur ON ro.iroleid = ur.iroleid
+				WHERE ur.iuserid = #{userid} AND module.indocno = mp.imoduleid
+			)
+		AND module.idel = 0
+		ORDER BY module.isort desc
+	</select>
+	<select id="findUserModule" resultType="com.luckyun.model.module.SysModule" parameterType="com.luckyun.base.module.param.SysModuleParam">
+		SELECT a.* FROM sys_module a where
+		<if test="condition.moduleIds !=null and condition.moduleIds.size() >= 1">
+			a.indocno in
+			<foreach item="item" collection="condition.moduleIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		and idel = 0 order by a.isort desc
+	</select>
+</mapper>

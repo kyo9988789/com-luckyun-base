@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.user.mapper.SysUserPostMapper">
+	<select id="findPostByUid" resultType="com.luckyun.model.user.SysUserPost" parameterType="Long">
+		select upost.indocno,upost.iuserid,upost.ipostid 
+			from sys_user_post upost where upost.iuserid = #{uid}
+	</select>
+	<select id="findPostByIpostid" resultType="com.luckyun.model.user.SysUserPost" parameterType="Long">
+		select upost.indocno,upost.iuserid,upost.ipostid 
+			from sys_user_post upost where upost.ipostid = #{pid}
+	</select>
+	
+	<select id="findPostByUserPost" resultType="com.luckyun.model.post.SysPost" 
+		parameterType="com.luckyun.base.user.param.SysUserParam">
+		select spost.*,upost.iuserid from sys_post spost inner join sys_user_post upost
+			on spost.indocno = upost.ipostid
+			where spost.idel = 0
+		<if test="condition.iuserids != null and condition.iuserids.size() >= 1">
+			and upost.iuserid in 
+			<foreach item="item" collection="condition.iuserids" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+	
+	<select id="selectPosts" resultType="com.luckyun.model.user.SysUserPost"  parameterType="com.luckyun.base.user.param.SysUserParam">
+		select * from sys_user_post upost where upost.ipostid = #{condition.ipostid}
+		<if test="condition.iuserids != null and condition.iuserids.size() >= 1">
+			and upost.iuserid in 
+			<foreach item="item" collection="condition.iuserids" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+</mapper>

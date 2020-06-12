@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.role.mapper.SysRoleMapper">
+
+	<select id="findAll" resultType="com.luckyun.model.role.SysRole"
+		parameterType="com.luckyun.base.role.param.SysRoleParam">
+		select * from sys_role srole where srole.idel = 0 
+		<if test="condition.itypeid != null">
+			and srole.itypeid = #{condition.itypeid}
+		</if>
+		<if test="condition.sname !=null and condition.sname!= ''">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and srole.sname like #{csname}
+		</if>
+		 order by srole.isort desc 
+	</select>
+	
+	<select id="findAllStatis" resultType="com.luckyun.model.role.SysRole" parameterType="com.luckyun.base.role.param.SysRoleParam">
+		select *,(select count(1) from sys_user_role sur inner join sys_account sacc on sur.iuserid=sacc.indocno
+			where sur.iroleid = srole.indocno and sacc.idel=0) as rolemembercount
+		from sys_role srole  where srole.idel = 0
+		<if test="condition.itypeid != null">
+			and srole.itypeid = #{condition.itypeid}
+		</if>
+		<if test="condition.sname !=null and condition.sname != ''">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and srole.sname like #{csname}
+		</if>
+		 order by srole.isort desc 
+	</select>
+	
+	<select id="findOne" resultType="com.luckyun.model.role.SysRole" parameterType="Long">
+		select *from sys_role where indocno = #{indocno} and idel = 0
+	</select>
+	
+	<select id="findAllNotDel" resultType="com.luckyun.model.role.SysRole"
+		parameterType="com.luckyun.base.role.param.SysRoleParam">
+		select * from sys_role srole where 1=1
+		<if test="condition.itypeid != null">
+			and srole.itypeid = #{condition.itypeid}
+		</if>
+		<if test="condition.sname !=null and condition.sname!= ''">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and srole.sname like #{csname}
+		</if>
+		 order by srole.isort desc
+	</select>
+	
+	<select id="findRoleByUid" resultType="com.luckyun.model.role.SysRole" parameterType="Long">
+		select srole.* from sys_role srole inner join sys_user_role surole
+			on srole.indocno = surole.iroleid where srole.idel = 0 and surole.iuserid = #{iuserid}
+	</select>
+	<!-- 查询当前角色下面用户的数量 -->
+	<select id="findCountUserByRole" resultType="Long" parameterType="Long">
+		select count(1) from sys_role sr 
+			inner join sys_user_role sur on sr.indocno = sur.iroleid
+			inner join sys_account sa on sur.iuserid = sa.indocno
+			where sa.idel = 0 and sr.indocno=#{iroleid}
+	</select>
+</mapper>

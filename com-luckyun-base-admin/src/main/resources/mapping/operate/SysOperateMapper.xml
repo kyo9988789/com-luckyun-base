@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.operate.mapper.SysOperateMapper">
+	<select id="findAll" 
+		resultType="com.luckyun.model.operate.SysOperate" parameterType="com.luckyun.base.operate.param.SysOperateParam">
+		select a.* from sys_operate a where a.idel = 0 
+		<if test="condition.igroupid !=null and '' != condition.igroupid">
+			and a.igroupid = #{condition.igroupid}
+		</if>
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and (a.sname like #{csname})
+		</if>
+		order by a.isort desc
+	</select>
+	<select id="findOne" 
+	resultType="com.luckyun.model.operate.SysOperate" parameterType="Long">
+	select op.*,group1.sname as sgroupnm from sys_operate op 
+		left join sys_operate_group group1 on op.igroupid = group1.indocno where op.idel = 0 and op.indocno = #{indocno}
+	</select>
+</mapper>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.notice.mapper.SysNoticeMapper">
+	<resultMap type="com.luckyun.model.notice.SysNotice" id="sysNoticeMap">
+		<id property="indocno" column="indocno"/>
+		<result property="stitle" column="stitle" />
+		<result property="itype" column="itype" />
+		<result property="isendid" column="isendid" />
+		<result property="dsend" column="dsend" />
+		<result property="dstart" column="dstart" />
+		<result property="dend" column="dend" />
+		<result property="istate" column="istate" />
+		<result property="ssendMembers" column="ssend_members"/>
+		<association property="sysNoticeDetail" javaType="com.luckyun.model.notice.SysNoticeDetail">
+			<id column="detailindocno" property="indocno"/>
+			<result column="ilinkno" property="ilinkno"/>
+			<result column="scontent" property="scontent"/>
+		</association>
+	</resultMap>
+	<select id="findAll" 
+		resultType="com.luckyun.model.notice.SysNotice" parameterType="com.luckyun.base.notice.param.SysNoticeParam">
+		select a.indocno,a.stitle,a.itype,a.dsend,a.dstart,a.dend,a.istate,a.ssend_members,a.sregnm,a.dregt
+			 from sys_notice a where idel = 0
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and a.stitle like #{csname}
+		</if>
+		<!-- 公告未开始 -->
+		<if test="condition.istate == 3">
+			and a.dstart &gt; #{condition.nowdate}
+		</if>
+		<!-- 公告已发布 -->
+		<if test="condition.istate == 1">
+			and (#{condition.nowdate} &gt;= a.dstart and #{condition.nowdate} &lt;= a.dend)
+		</if>
+		<!-- 公告已截至 -->
+		<if test="condition.istate == 2">
+		 	and #{condition.nowdate} &gt; a.dend
+		</if>
+		<if test="condition.itype !=null and '' != condition.itype">
+			and a.itype = #{condition.itype}
+		</if>
+		<if test="condition.dstart != null ">
+			and a.dstart &gt;= #{condition.dstart}
+		</if>
+		
+		<if test="condition.dend != null ">
+			and a.dstart &lt;= #{condition.dend}
+		</if>
+		
+		<if test="condition.icreater != null ">
+			and a.sregid = #{condition.icreater}
+		</if>
+		order by a.dregt desc
+	</select>
+	<select id="findOne" resultMap="sysNoticeMap">
+		select a.*,b.indocno as detailindocno,b.ilinkno,b.scontent from sys_notice a 
+			left join sys_notice_detail b on a.indocno = b.ilinkno
+			left join sys_notice_user c on a.indocno = c.ilinkno
+			where a.idel = 0 and a.indocno = #{indocno} 
+			<if test="iuserid != null">
+				and c.iuserid = #{iuserid}
+			</if>
+	</select>
+	<!-- 要是当前公告永不过期.可以设置过期时间为2099年,添加公告时必须要填写开始结束时间 -->
+	<select id="findNormalMember" resultType="com.luckyun.model.notice.SysNotice" parameterType="com.luckyun.base.notice.param.SysNoticeParam">
+		select distinct a.indocno,a.stitle,a.itype,a.dsend,a.dstart,a.dend,a.istate,a.sregnm,a.dregt
+			 from sys_notice a inner join sys_notice_user nuser on a.indocno = nuser.ilinkno
+			where ((nuser.iuserid = #{condition.iuserid} and (#{condition.nowdate} &gt;= a.dstart and #{condition.nowdate} &lt;= a.dend)) or a.sregid = #{condition.iuserid})
+				and a.idel = 0
+				<if test="condition.sname !=null and '' != condition.sname">
+					<bind name="csname" value="'%' + condition.sname + '%'"/>
+					and a.stitle like #{csname}
+				</if>
+				<!-- 公告已读未读过滤 -->
+				<if test="condition.iread != null and condition.iread == 1">
+					and exists (
+							select c.indocno from sys_notice_user_his c 
+							where a.indocno = c.ilinkno and nuser.iuserid = c.iuserid and iread_count &gt;= 1
+							)
+				</if>
+				<if test="condition.iread != null and condition.iread == 0">
+					and exists (
+							select c.indocno from sys_notice_user_his c 
+							where a.indocno = c.ilinkno and nuser.iuserid = c.iuserid and iread_count &lt;= 0
+							)
+				</if>
+				order by a.dstart desc
+	</select>
+	
+	<select id="findAllByMyNotice" resultType="com.luckyun.model.notice.SysNotice" parameterType="com.luckyun.base.notice.param.SysNoticeParam">
+		select distinct a.indocno,a.stitle,a.itype,a.dsend,a.dstart,a.dend,a.istate,a.sregnm,a.dregt
+			 from sys_notice a inner join sys_notice_user nuser on a.indocno = nuser.ilinkno
+			where nuser.iuserid = #{condition.iuserid} and (#{condition.nowdate} &gt;= a.dstart and #{condition.nowdate} &lt;= a.dend)
+				and a.idel = 0
+				<if test="condition.sname !=null and '' != condition.sname">
+					<bind name="csname" value="'%' + condition.sname + '%'"/>
+					and a.stitle like #{csname}
+				</if>
+				<!-- 公告已读未读过滤 -->
+				<if test="condition.iread != null and condition.iread == 1">
+					and exists (
+							select c.indocno from sys_notice_user_his c 
+							where a.indocno = c.ilinkno and nuser.iuserid = c.iuserid and iread_count &gt;= 1
+							)
+				</if>
+				<if test="condition.iread != null and condition.iread == 0">
+					and exists (
+							select c.indocno from sys_notice_user_his c 
+							where a.indocno = c.ilinkno and nuser.iuserid = c.iuserid and iread_count &lt;= 0
+							)
+				</if>
+				order by a.dstart desc
+	</select>
+	
+	<select id="findNoticeByNotRead" resultType="com.luckyun.model.notice.SysNotice" parameterType="com.luckyun.base.notice.param.SysNoticeParam">
+		select a.* from sys_notice a inner join 
+			sys_notice_user_his b on a.indocno = b.ilinkno
+			where (b.iread_count &lt;= 0 or b.iread_count is null) and b.iuserid = #{condition.iuserid} 
+				and (#{condition.nowdate} &gt;= a.dstart and #{condition.nowdate} &lt;= a.dend)
+				and a.idel = 0
+			order by a.dstart desc
+	</select>
+</mapper>

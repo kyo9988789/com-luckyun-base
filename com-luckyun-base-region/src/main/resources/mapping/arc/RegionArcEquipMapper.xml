@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.region.mapper.arc.RegionArcEquipMapper">
+      
+    <select id="readAll" parameterType="com.luckyun.region.model.arc.RegionArcEquip" 
+    	resultType="com.luckyun.region.model.arc.RegionArcEquip">
+    	select * from arc_equip a
+    	<where>
+    		<if test="condition.iparentid != null ">
+    			and a.iparentid = #{condition.iparentid}
+    		</if>
+    	</where>
+    </select>
+</mapper>

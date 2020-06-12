@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.user.mapper.SysUserMajorMapper">
+	<select id="findMajorByUid" resultType="com.luckyun.model.user.SysUserMajor" parameterType="Long">
+		select umajor.indocno,umajor.iuserid,umajor.imajorid
+			from sys_user_major umajor where umajor.iuserid = #{uid}
+	</select>
+
+	<select id="findMajorByMid" resultType="com.luckyun.model.user.SysUserMajor" parameterType="Long">
+		select umajor.indocno,umajor.iuserid,umajor.imajorid
+			from sys_user_major umajor where umajor.imajorid = #{mid}
+	</select>
+
+	<select id="findMajorByIds"  resultType="com.luckyun.model.user.SysUserMajor" parameterType="com.luckyun.model.user.SysUserMajor">
+		select umajor.indocno,umajor.iuserid,umajor.imajorid
+			from sys_user_major umajor where umajor.imajorid = #{condition.imajorid} and umajor.iuserid=#{condition.iuserid}
+	</select>
+</mapper>

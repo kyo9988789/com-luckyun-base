@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.luckyun.base.role.mapper.SysRoleOperateMapper"> 
+ 
+	<select id="findByIoperateid" resultType="com.luckyun.model.role.SysRoleOperate"> 
+		select roperate.indocno,roperate.iroleid,roperate.ioperateid  
+			from sys_role_operate roperate where roperate.ioperateid = #{ioperateid}  
+	</select> 
+	
+	<select id="findModuleOperateByModule" resultType="com.luckyun.base.role.param.SysRoleModuleOperate">
+		select DISTINCT module.indocno as mindocno,module.sname as msname,module.sidcc,module.iparentid
+			,mop.indocno as mopindocno,mop.sname as mopsname,op.indocno as opindocno,op.sname as opsname 
+			from sys_module module 
+			inner JOIN sys_module_operate mop on module.indocno = mop.imoduleid
+			LEFT join sys_operate op on mop.ioperateid= op.indocno
+	</select>
+	
+	<select id="findMopByRole" resultType="com.luckyun.model.module.SysModuleOperate" parameterType="Long">
+		select smo.*,sro.indocno as iroleoperateid from sys_role_operate sro
+			inner join sys_module_operate smo on sro.ioperateid = smo.indocno
+			where sro.iroleid = #{iroleid}
+	</select>
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.msg.mapper.SysMsgUserMapper">
+
+	<select id="findByIlinknoAndUser" resultType="com.luckyun.model.msg.SysMsgUser" parameterType="long">
+		select * from sys_msg_user where ilinkno = #{ilinkno} and iuserid=#{iuserid}
+	</select>
+	<select id="findMembers" resultType="com.luckyun.model.msg.SysMsgUser">
+		select a.*,b.sname as username from sys_msg_user a 
+			left join sys_account b on a.iuserid=b.indocno
+	 	where a.ilinkno=#{ilinkno}
+ 		<if test="iread==1">
+ 			and a.iread>0
+ 		</if>
+ 		<if test="iread==0">
+ 			and a.iread=0
+ 		</if>  
+	</select>
+</mapper>

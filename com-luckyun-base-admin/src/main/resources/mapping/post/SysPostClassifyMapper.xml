@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.post.mapper.SysPostClassifyMapper">
+	<select id="findAll" resultType="com.luckyun.model.post.SysPostClassify"
+		parameterType="com.luckyun.base.post.param.SysPostClassifyParam">
+			select * from sys_post_classify classify where classify.idel = 0
+			order by classify.isort desc
+	</select>
+	
+	<select id="findOne" resultType="com.luckyun.model.post.SysPostClassify" parameterType="Long">
+		select * from sys_post_classify where idel = 0 and indocno = #{indcono}
+	</select>
+</mapper>

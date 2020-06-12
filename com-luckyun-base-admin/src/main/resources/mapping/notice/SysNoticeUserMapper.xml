@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.notice.mapper.SysNoticeUserMapper">
+	<resultMap type="com.luckyun.model.user.SysAccount" id="sysUserResultMap">
+		<id property="indocno" column="indocno" />
+		<result property="sname" column="sname" />
+		<result property="dovertime" column="readtime"/>
+		<association property="sysUserInfo" javaType="com.luckyun.model.user.SysUser">
+			<id column="infoindocno" property="indocno"/>
+			<result column="sphoto" property="sphoto"/>
+		</association>
+	</resultMap>
+	<select id="findStatisByIlinkno" resultType="com.luckyun.base.notice.param.SysNoticeStatis" parameterType="long">
+		select tab1.total,tab2.doing,tab3.done from (select count(1) as total,a.ilinkno from sys_notice_user a
+inner join sys_notice_user_his b on a.ilinkno = b.ilinkno and a.iuserid = b.iuserid
+			GROUP BY a.ilinkno) tab1
+			left JOIN
+			(select count(1) as doing,a.ilinkno from sys_notice_user  a
+inner join sys_notice_user_his b on a.ilinkno = b.ilinkno and a.iuserid = b.iuserid
+where b.iread_count = 0 GROUP BY a.ilinkno) tab2
+			on tab1.ilinkno = tab2.ilinkno
+			left JOIN
+			(select count(1) as done,a.ilinkno from sys_notice_user a
+inner join sys_notice_user_his b on a.ilinkno = b.ilinkno and a.iuserid = b.iuserid
+where b.iread_count >= 1 GROUP BY a.ilinkno) tab3
+			on tab1.ilinkno = tab3.ilinkno
+			where tab1.ilinkno = #{ilinkno}
+	</select>
+	
+	<select id="findStatisByIlinknoList" resultType="com.luckyun.base.notice.param.SysNoticeStatis">
+		select tab1.total,tab2.doing,tab3.done,tab1.ilinkno from (select count(1) as total,a.ilinkno from sys_notice_user a
+inner join sys_notice_user_his b on a.ilinkno = b.ilinkno and a.iuserid = b.iuserid
+			GROUP BY a.ilinkno) tab1
+			left JOIN
+			(select count(1) as doing,a.ilinkno from sys_notice_user  a
+inner join sys_notice_user_his b on a.ilinkno = b.ilinkno and a.iuserid = b.iuserid
+where b.iread_count = 0 GROUP BY a.ilinkno) tab2
+			on tab1.ilinkno = tab2.ilinkno
+			left JOIN
+			(select count(1) as done,a.ilinkno from sys_notice_user a
+inner join sys_notice_user_his b on a.ilinkno = b.ilinkno and a.iuserid = b.iuserid
+where b.iread_count >= 1 GROUP BY a.ilinkno) tab3
+			on tab1.ilinkno = tab3.ilinkno
+			where tab1.ilinkno in 
+			<foreach item="item" collection="ilinknos" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+	</select>
+	
+	<delete id="deleteByIlinkno" parameterType="Long">
+		delete from sys_notice_user where ilinkno = #{ilinkno}
+	</delete>
+	
+	<select id="findUserByReadDetail" resultMap="sysUserResultMap"
+		parameterType="com.luckyun.base.notice.param.SysNoticeParam">
+		select DISTINCT sac.indocno,sac.sname,sue.sphoto,sue.indocno as infoindocno
+			,snohis.iread_time as readtime from sys_account sac
+				left join sys_user sue on sac.indocno = sue.iuserid
+				left join sys_notice_user_his snohis on snohis.iuserid = sac.indocno
+				where snohis.ilinkno = #{condition.indocno} and sac.idel = 0
+				<!-- 已读 -->
+				<if test="condition.istate != null and  condition.istate == 1">
+					and snohis.iread_count &gt;= 1
+				</if>
+				<if test="condition.istate != null and  condition.istate == 0">
+					and snohis.iread_count &lt;= 0
+				</if>
+	</select>
+</mapper>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.other.mapper.SysUserVisitMapper">
+	<select id="findOftenModule" 
+		resultType="com.luckyun.model.module.SysModule" >
+		select m.* from sys_user_visit v inner join sys_module m
+			on v.imoduleid = m.indocno where v.iuserid = #{iuserid} order by v.icount desc
+	</select>
+</mapper>

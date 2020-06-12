@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.major.mapper.SysMajorMapper">
+
+	<select id="findOne" resultType="com.luckyun.model.major.SysMajor" parameterType="Long">
+		select * from sys_major where idel = 0 and indocno = #{indocno}
+	</select>
+
+	<select id="findAll" resultType="com.luckyun.model.major.SysMajor"
+		parameterType="com.luckyun.base.major.param.SysMajorParam">
+		select *,(select count(1) from sys_user_major umajor inner join sys_account suser on suser.indocno=umajor.iuserid 
+			where umajor.imajorid=major.indocno and suser.idel=0) as membercount from sys_major major where major.idel = 0
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and (sname like #{csname})
+		</if>
+		 order by major.isort desc, major.dregt desc
+	</select>
+
+	<select id="findMajorByUserMajor" resultType="com.luckyun.model.major.SysMajor"
+			parameterType="com.luckyun.base.user.param.SysUserParam">
+		select major.*,umajor.iuserid from sys_major major inner join sys_user_major umajor
+		on major.indocno = umajor.imajorid
+		where major.idel = 0
+		<if test="condition.iuserids != null and condition.iuserids.size() >= 1">
+			and umajor.iuserid in
+			<foreach item="item" collection="condition.iuserids" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+	
+	<select id="findMajorByIuserid" parameterType="long" resultType="com.luckyun.model.major.SysMajor">
+		SELECT
+			* 
+		FROM
+			sys_major cmajor
+		LEFT JOIN 
+			sys_user_major cusermajor 
+		ON 
+			cmajor.indocno = cusermajor.imajorid 
+		WHERE
+			cmajor.idel = 0
+		and
+			cusermajor.iuserid = #{iuserid}
+		
+	</select>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.collect.mapper.SysCollectMapper">
+
+	<select id="findAll" resultType="com.luckyun.model.collect.SysCollect" parameterType="com.luckyun.base.collect.param.SysCollectParam">
+		select
+			 moduleu.indocno,
+			 moduleu.iuserid,
+			 moduleu.imoduleid,
+			 moduleu.dregt,
+			 moduleu.sregid,
+			 module.sname,
+			 module.spath,
+			 module.spathalias
+		from
+			sys_module_user moduleu left join sys_module module
+		on 
+			moduleu.imoduleid = module.indocno
+		where 
+			moduleu.iuserid = #{condition.iuserid}
+		order by 
+			module.isort asc
+	</select>
+	
+	<select id="findByImoduleid" resultType="com.luckyun.model.collect.SysCollect">
+		select * from sys_module_user where iuserid=#{iuserid} and imoduleid=#{imoduleid}
+	</select>
+
+</mapper>

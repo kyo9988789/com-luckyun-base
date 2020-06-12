@@ -1,0 +1,44 @@
+server:
+  port: 8989
+spring:
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: sync
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://10.10.10.81:3306/luckyun?useUnicode=true&characterEncoding=utf-8&serverTimezone=CTT
+    username: root
+    password: luckserver
+  redis:
+    host: 10.10.10.81
+    port: 31209
+    password: luckserver
+    database: 1
+  key-redis:
+    host: 10.10.10.81
+    port: 31209
+    password: luckserver
+    database: 2
+  rabbitmq:
+    host: 10.10.10.81
+    port: 5672
+    username: guest
+    password: luckserver
+    virtual-host: sync
+  elk:
+    append:
+      url: 10.10.10.354
+luckyun:
+  debug: true
+  mock: 
+    auth: eyJpbmRvY25vIjoyLCJzbG9naW5pZCI6ImFkbWluIiwic3Bhc3N3b3JkIjoiZTEwYWRjMzk0OWJhNTlhYmJlNTZlMDU3ZjIwZjg4M2UiLCJzbmFtZSI6IueuoeeQhuWRmCIsImlzdGF0ZSI6MSwiaWNvbXBhbnlpZCI6MSwic2NvbXBhbnlubSI6IuWuieW+veWtpuW6nCIsInJvbGVMaXN0IjpbeyJrZXlJbmRvY25vIjoyLCJpbmRvY25vIjoyLCJzcmVnaWQiOjIsImRyZWd0IjoiMjAxOS0wMS0wMiAxMTozNzoxMSIsImlkZWwiOjAsIml0eXBlaWQiOjIsInNuYW1lIjoi566h55CG5ZGYIiwic2Rlc2NyaWJlIjoi5omA5pyJ55qE5pON5L2c5p2D6ZmQ5ZKM5a6h5om55p2D6ZmQIiwiaXN0YXRlIjoxLCJpc29ydCI6MiwiaWxldmVsIjo1fV0sImRlcHRMaXN0IjpbeyJrZXlJbmRvY25vIjoxMDAxLCJpbmRvY25vIjoxMDAxLCJkcmVndCI6IjIwMTktMDctMTcgMTA6Mzc6MDMiLCJpZGVsIjowLCJzbmFtZSI6IuW+heWyl+acuuaehCIsIml0eXBlIjowLCJjb21wYW55TmFtZSI6IuWkp+i/nuWfuuWcsCIsImljb21wYW55aWQiOjF9XSwib3BlcmF0ZUxpc3RzIjoiIn0=
+key-table-filter:
+  tables: logging_event,logging_event_exception,logging_event_property,sys_user_log,sys_log,sys_log_field
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${eureka.host:127.0.0.1}:${eureka.port:20000}/eureka
+  

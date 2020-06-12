@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.user.mapper.SysUserRoleMapper">
+	<select id="findRoleByUid" resultType="com.luckyun.model.user.SysUserRole" parameterType="Long">
+		select urole.indocno,urole.iuserid,urole.iroleid 
+			from sys_user_role urole where urole.iuserid = #{uid}
+	</select>
+	<select id="findRoleByUser" resultType="com.luckyun.model.role.SysRole" 
+		parameterType="Long">
+		select srole.*,urole.iuserid from sys_role srole inner join sys_user_role urole on srole.indocno = urole.iroleid
+			where srole.idel = 0 and urole.iuserid = #{uid}
+	</select>
+	
+	<select id="findRoleByUserRole" resultType="com.luckyun.model.role.SysRole" 
+		parameterType="com.luckyun.base.user.param.SysUserParam">
+		select srole.*,urole.iuserid from sys_role srole inner join sys_user_role urole
+			on srole.indocno = urole.iroleid
+			where srole.idel = 0
+		<if test="condition.iuserids != null and condition.iuserids.size() >= 1">
+			and urole.iuserid in 
+			<foreach item="item" collection="condition.iuserids" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+	
+	<select id="findRoleByCondition"  parameterType="com.luckyun.base.user.param.SysUserParam" 
+		resultType="com.luckyun.model.user.SysUserRole">
+		select * from sys_user_role urole where urole.iroleid = #{condition.iroleid}
+		<if test="condition.iuserids != null and condition.iuserids.size() >= 1">
+			and urole.iuserid in 
+			<foreach item="item" collection="condition.iuserids" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+</mapper>

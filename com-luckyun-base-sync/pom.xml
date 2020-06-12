@@ -1,0 +1,25 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.luckyun</groupId>
+		<artifactId>com-luckyun-parent</artifactId>
+		<version>1.0.13-RELEASE</version>
+		<relativePath />
+	</parent>
+	<artifactId>com-luckyun-base-sync</artifactId>
+	<name>sync</name>
+	<description>一般用作同步其它来源的数据</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.luckyun</groupId>
+			<artifactId>com-luckyun-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.luckyun</groupId>
+			<artifactId>com-luckyun-model</artifactId>
+		</dependency>
+	</dependencies>
+</project>

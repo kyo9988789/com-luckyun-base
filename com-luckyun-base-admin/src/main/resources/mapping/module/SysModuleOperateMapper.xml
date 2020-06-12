@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.module.mapper.SysModuleOperateMapper">
+	<select id="findByIoperateid" resultType="com.luckyun.model.module.SysModuleOperate" parameterType="Long">
+	select * from sys_module_operate where ioperateid = #{ioperateid}
+	</select>
+	
+	<select id="findByIoperateGroupid" resultType="com.luckyun.model.module.SysModuleOperate" parameterType="Long">
+	select a.* from sys_module_operate a where a.ioperateid in (select b.indocno from sys_operate b where b.igroupid=#{igroupid})
+	</select>
+	
+	<select id="findByImoduleOperateIds" resultType="com.luckyun.model.module.SysModuleOperate">
+	select a.*,b.sname as smodulename,c.sname as soperatename from sys_module_operate a 
+		left join sys_module b on a.imoduleid=b.indocno 
+		left join sys_operate c on a.ioperateid=c.indocno 
+		<choose>
+			<when test="indocnos!=null and indocnos.size()>0">
+			where  a.indocno in 
+				<foreach item="indocno" index="index" collection="indocnos" open="(" separator="," close=")">  
+				#{indocno}
+				</foreach>
+			</when>
+			<otherwise>
+				where 1=2
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

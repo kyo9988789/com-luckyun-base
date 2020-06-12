@@ -1,0 +1,15 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.luckyun</groupId>
+  <artifactId>com-luckyun-base</artifactId>
+  <version>1.0.0-RELEASE</version>
+  <packaging>pom</packaging>
+  <name>com-luckyun-base</name>
+  <description>基础结构,包含基础服务以及服务提供者信息</description>
+  <modules>
+		<module>com-luckyun-base-admin</module>
+		<module>com-luckyun-base-provider</module>
+		<module>com-luckyun-base-region</module>
+		<module>com-luckyun-base-sync</module>
+  </modules>
+</project>

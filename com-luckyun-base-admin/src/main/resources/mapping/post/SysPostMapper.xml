@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.post.mapper.SysPostMapper">
+	<select id="findAll" 
+		resultType="com.luckyun.model.post.SysPost" parameterType="com.luckyun.base.post.param.SysPostParam">
+		select spost.*,(select count(1) from sys_user_post upost inner join sys_account sacc on upost.iuserid=sacc.indocno 
+			where upost.ipostid=spost.indocno and sacc.idel = 0) as postmembercount
+			from sys_post spost where spost.idel = 0 
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and (spost.sname like #{csname})
+		</if>
+		<if test="condition.iclassifyid !=null">
+			and spost.iclassifyid = #{condition.iclassifyid}
+		</if>
+		order by spost.isort desc
+	</select>
+	<select id="findOne" 
+		resultType="com.luckyun.model.post.SysPost" parameterType="Long">
+		select post.*,classify.sname as sclassifynm from sys_post post
+			left join sys_post_classify classify on post.iclassifyid = classify.indocno
+			where post.idel = 0 and post.indocno = #{indocno}
+	</select>
+	<select id="findTotal"
+		resultType="Long">
+		select count(1) from sys_post where idel = 0
+	</select>
+	<select id="findAllByIsort"
+		resultType="com.luckyun.model.post.SysPost">
+		select * from sys_post where idel = 0 order by isort ASC
+	</select>
+	
+	<select id="findAllNoIdel" resultType="com.luckyun.model.post.SysPost" parameterType="com.luckyun.base.post.param.SysPostParam">
+		select * from sys_post spost where 1=1
+		<if test="condition.sname !=null and '' != condition.sname">
+			<bind name="csname" value="'%' + condition.sname + '%'"/>
+			and (spost.sname like #{csname})
+		</if>
+		<if test="condition.iclassifyid !=null">
+			and spost.iclassifyid = #{condition.iclassifyid}
+		</if>
+		order by spost.isort desc
+	</select>
+</mapper>

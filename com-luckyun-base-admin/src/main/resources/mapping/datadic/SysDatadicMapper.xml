@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.datadic.mapper.SysDatadicMapper">
+
+	<!-- 获取数据字典列表 -->
+	<select id="findAll" resultType="com.luckyun.model.datadic.SysDatadic" parameterType="com.luckyun.base.datadic.param.SysDatadicParam">
+		select
+			dic.indocno, dic.iclassifyid, class.snamealias, dic.sname, dic.isort, dic.spinyinsimple, 
+			dic.spinyinfull, dic.istate, dic.sfactvalue,dic.sfactvalue1,dic.sfactvalue2,dic.sfactvalue3,dic.sfactvalue4, dic.sregid, dic.dregt
+		from
+			sys_datadic dic left join sys_datadic_classify class
+		on 
+			dic.iclassifyid = class.indocno
+		where dic.idel = 0 
+		<if test="null != sysDatadicParam.snamealias and '' != sysDatadicParam.snamealias">
+			and class.snamealias = #{sysDatadicParam.snamealias}
+		</if>
+		<if test="null != sysDatadicParam.iclassifyid">
+			and dic.iclassifyid = #{sysDatadicParam.iclassifyid}
+		</if>
+		<if test="null != sysDatadicParam.istate">
+			and dic.istate = #{sysDatadicParam.istate}
+		</if>
+		order by 
+			dic.isort asc
+	</select>
+	
+	<!-- 查询对应字典分类下是否存在字典数据 -->
+	<select id="findByIclassifyCount" resultType="int" parameterType="long">
+		select 
+			count(1) 
+		from 
+			sys_datadic 
+		where 
+			idel = 0 and iclassifyid = #{iclassifyid}
+	</select>
+
+	<select id="findOne" resultType="com.luckyun.model.datadic.SysDatadic" parameterType="Long">
+		select * from sys_datadic where idel = 0 and indocno = #{indocno}
+	</select>
+	
+	<select id="findBySnameAndSfactvalue" resultType="com.luckyun.model.datadic.SysDatadic">
+		select * from sys_datadic where idel = 0 and (sname = #{sname} or sfactvalue = #{sfactvalue}) and iclassifyid=#{iclassifyid}
+	</select>
+</mapper>

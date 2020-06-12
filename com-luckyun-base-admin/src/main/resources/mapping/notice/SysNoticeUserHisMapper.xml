@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.notice.mapper.SysNoticeUserHisMapper">
+	
+	<select id="findByIlinkno" resultType="com.luckyun.model.notice.SysNoticeUserHis" parameterType="long">
+		select a.* from sys_notice_user_his a where a.ilinkno = #{ilinkno}
+	</select>
+	
+	<select id="findByIlinknoAndIuserid" resultType="com.luckyun.model.notice.SysNoticeUserHis">
+		select * from sys_notice_user_his where ilinkno = #{ilinkno} and iuserid = #{iuserid}
+	</select>
+	
+	
+	<select id="findByIuserid" resultType="com.luckyun.model.notice.SysNoticeUserHis" parameterType="Long">
+		select * from sys_notice_user_his where iuserid = #{iuserid}
+	</select>
+</mapper>

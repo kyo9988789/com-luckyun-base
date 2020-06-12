@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luckyun.base.notice.mapper.SysNoticeReplyMapper">
+	<select id="findAllMainReply" 
+		resultType="com.luckyun.model.notice.SysNoticeReply" parameterType="long">
+		select a.* from sys_notice_reply a where a.ilinkno=#{ilinkno} and a.imainid is NULL
+		order by a.dregt asc
+	</select>
+	<select id="findAllReply" 
+		resultType="com.luckyun.model.notice.SysNoticeReply" parameterType="long">
+		select a.* from sys_notice_reply a where a.ilinkno=#{ilinkno} and a.imainid is not NULL
+		order by a.dregt asc
+	</select>
+	
+	<select id="findOne" resultType="com.luckyun.model.notice.SysNoticeReply">
+		select a.* from sys_notice_reply a where a.indocno = #{ireplyid}
+	</select>
+</mapper>
